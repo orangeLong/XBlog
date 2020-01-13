@@ -1,37 +1,40 @@
 module.exports = {
-	title: 'XZero',
-	description: 'XZero\'s simple blog',
+	title: 'ZeroX',
+	description: 'ZeroX\'s simple blog',
 	markdown: {
 		lineNumbers: true
 	},
 	themeConfig: {
 		nav: [
-			{text: 'XZero', link: '/'},
+			{text: 'ZeroX', link: '/'},
 			{text: '技术', items: [
-				{text: 'iOS', link: '/skill/'},
-				{text: 'Vue', link: '/skill/'},
-				{text: 'Node', link: '/skill/'},
-				{text: 'Base', link: '/skill/'},
+				{text: 'iOS', link: '/skill/iOS/effective.md'},
+				{text: 'Vue', link: '/skill/Vue/'},
+				{text: 'Node', link: '/skill/Node/'},
+				{text: 'Base', link: '/skill/Base/'},
 			]},
-			{text: '树洞', link: '/hole/one'},
+			{text: '树洞', link: '/hole/recent'},
 			{text: 'GitHub', link: 'https://github.com/orangeLong'}
 		],
-		displayAllHeaders: true,
+		// displayAllHeaders: true,
 		sidebarDepth: 2,
 		sidebar: {
-			'/skill/': [
+			'/skill/iOS/': [
+				'effective',
+				'block'
+			],
+			'/skill/Vue/': [
 				'',
-				'one',
-				'two'
+			],
+			'/skill/Node/': [
+				'',
+			],
+			'/skill/Base/': [
+				'',
 			],
 			'/hole/': [
-				'one',
-				'two'
+				'recent',
 			],
-			// '/': [
-			// 	'',
-			// 	'config'
-			// ]
 		}
 	}
 }
