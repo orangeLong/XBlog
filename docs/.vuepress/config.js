@@ -1,12 +1,12 @@
 module.exports = {
-	title: 'ZeroX',
-	description: 'ZeroX\'s simple blog',
+	title: 'XZero',
+	description: 'XZero\'s simple blog',
 	markdown: {
 		lineNumbers: true
 	},
 	themeConfig: {
 		nav: [
-			{text: 'ZeroX', link: '/'},
+			{text: 'XZero', link: '/'},
 			{text: '技术', items: [
 				{text: 'iOS', link: '/skill/iOS/effective.md'},
 				{text: 'Vue', link: '/skill/Vue/'},

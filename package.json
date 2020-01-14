@@ -22,6 +22,5 @@
   },
   "homepage": "https://github.com/orangeLong/XBlog#readme",
   "dependencies": {
-    "vuepress": "^1.2.0"
   }
 }
