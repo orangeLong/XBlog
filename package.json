@@ -1,5 +1,5 @@
 {
-  "name": "XBlog",
+  "name": "xblog",
   "version": "1.0.0",
   "description": "A simple personal blog",
   "main": "index.js",
@@ -20,5 +20,8 @@
   "bugs": {
     "url": "https://github.com/orangeLong/XBlog/issues"
   },
-  "homepage": "https://github.com/orangeLong/XBlog#readme"
+  "homepage": "https://github.com/orangeLong/XBlog#readme",
+  "dependencies": {
+    "vuepress": "^1.2.0"
+  }
 }
