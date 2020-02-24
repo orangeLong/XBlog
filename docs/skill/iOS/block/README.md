@@ -83,7 +83,7 @@ struct Block_layout {
 };
 ```
 &emsp;&emsp;用一张被用烂的图，[点击查看原文](http://www.galloway.me.uk/2013/05/a-look-inside-blocks-episode-3-block-copy/)。  
-![结构图](./assets/block/structure.png)  
+![结构图](./structure.png)  
 &emsp;&emsp;事实上该图适用于libclosure-38，在最新的源码中结构已经有所改变，但整体并未改变，只是在基础上新增了```signature ```和```layout ```，依然可以用其来理解。  
 * isa指针
 指向父类的结构体，就是```_NSConcreteStackBlock```，```_NSConcreteMallocBlock```，```_NSConcreteGlobalBlock```这几个，说明OC本身也是一个对象。

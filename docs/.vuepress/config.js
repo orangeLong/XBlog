@@ -8,7 +8,7 @@ module.exports = {
 		nav: [
 			{text: 'XZero', link: '/'},
 			{text: '技术', items: [
-				{text: 'iOS', link: '/skill/iOS/effective.md'},
+				{text: 'iOS', link: '/skill/iOS/effective/'},
 				{text: 'Vue', link: '/skill/Vue/'},
 				{text: 'Node', link: '/skill/Node/'},
 				{text: 'Base', link: '/skill/Base/'},
@@ -20,8 +20,9 @@ module.exports = {
 		sidebarDepth: 2,
 		sidebar: {
 			'/skill/iOS/': [
-				'effective',
-				'block'
+				'effective/',
+				'block/',
+				'interview/'
 			],
 			'/skill/Vue/': [
 				'',
