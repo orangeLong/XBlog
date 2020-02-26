@@ -294,23 +294,23 @@ layer.shouldRasterize，将图转换为一个个的栅格（像素）组成的�
 UIView为CALayer提供内容，以及负责处理触摸事件，参与响应链。  
 CALayer负责显示内容contents
 ## 44.事件传递和视图响应链
-事件由屏幕触发-UIApplication-UIWindow-UIView-SubViews，然后再倒序传递，最下方的视图不处理就返回父视图，如果到UIApplication还不处理就抛掉。
-其中关键的两个方法：hitTest和pointInside
+事件由屏幕触发-UIApplication-UIWindow-UIView-SubViews，然后再倒序传递，最下方的视图不处理就返回父视图，如果到UIApplication还不处理就抛掉。  
+其中关键的两个方法：hitTest和pointInside  
 当视图的hidden==YES、userInteractionEnabled==NO、alpha<0.01时不处理
 ## 45.UI绘制原理
-![绘制流程](draw.png)
+![绘制流程](./draw.png)
 调用view的setNeedsDisplay不会立即绘制，而是调用当前layer的setNeedsDispaly方法为layer打上标记，在runloop快要结束时调用layer的display方法来到真正的绘制流程。如果layer的delegate有值并实现了dispalyLayer方法，就会走异步绘制流程，否则走系统绘制流程。
-![系统绘制](systemDraw.png)
+![系统绘制](./systemDraw.png)
 layer内部会创建一个backing store，可以理解为上下文。然后判断layer的delegate是否有值，如果没有执行[CALayer drawInContext:]，否则执行drawLayer方法，并在方法内部执行view的drawRect。最后将绘制完成的backing store提交给GPU。
-![异步绘制](asyncDraw.png)
+![异步绘制](./asyncDraw.png)  
 如果view实现了dispalyLayer方法，则可在方法内部执行异步绘制。可以使用Core Graphics的API进行绘制，并将绘制完成的image赋值给layer的contents。
-YYAsyncLayer做了异步绘制的工作：
-1.在主线程注册了一个observer，优先级比CATransaction低，保证系统完成必须的工作。
-2.将需要异步绘制的操作集中起来。比如设置字体/颜色/背景等，runloop会在observer需要的时机通知统一处理。
-3.处理时机到时，执行异步绘制，并在主线程中把绘制结果传递给layer的contents总完成绘制。
+YYAsyncLayer做了异步绘制的工作：  
+1. 在主线程注册了一个observer，优先级比CATransaction低，保证系统完成必须的工作。
+2. 将需要异步绘制的操作集中起来。比如设置字体/颜色/背景等，runloop会在observer需要的时机通知统一处理。
+3. 处理时机到时，执行异步绘制，并在主线程中把绘制结果传递给layer的contents总完成绘制。
 ## 46.字符串反转
 按字符串的长度除以2，并for循环交换前后的字符即可。
-```
+``` objectivec
 NSMutableString *finalStr = @"hello,world".mutableCopy;
 for (int i = 0; i < finalStr.length / 2; i++) {
     NSString *exchangeStr = [finalStr substringWithRange:NSMakeRange(i, 1)];
@@ -331,7 +331,7 @@ for (int i = 0; i < len / 2; i++) {
 反转前：1->2->3->4->NULL
 反转后：4->3->2->1->NULL
 反转主要在于记录当前和next并传给下一次循环。
-```
+``` objectivec
 typedef struct Node {
     long data;
     struct Node *next;
@@ -367,7 +367,7 @@ typedef struct Node {
 ```
 ## 48.有序数组的合并
 只需要循环一次个数的总和
-```
+``` objectivec
 - (void)orderListMerge
 {
     int aLen = 5,bLen = 9;
@@ -394,7 +394,7 @@ typedef struct Node {
 ## 49.HASH算法
 哈希表：给定值字母a，对应的ASCII码值为97，数组下标为97。这个ASCII码就是一种哈希函数，存储和查找都通过该函数，可以有效的提高查找效率。
 在一个字符串中找到只出现一次的字符。字符char占有一个字节，在64位系统下一个字节有8位，最大255，有256中情况。
-```
+``` objectivec
 char *testCh = "hhaabccdeef";
 int list[256];
 for (int i = 0; i < 256; i++) {
@@ -418,7 +418,7 @@ while (*p != result) {
 ```
 ## 50.查找两个子视图所有相同的父视图
 从两个子视图最上层的父视图开始比较，直到找到第一个不同的，之前就是相同的。
-```
+``` objectivec
 - (NSArray *)findCommonView:(NSArray *)views1 views2:(NSArray *)views2 {
     NSMutableArray *commons = @[].mutableCopy;
     for (int i = 0; i < MIN(views1.count, views2.count); i++) {
@@ -434,17 +434,17 @@ while (*p != result) {
 }
 ```
 ## 51.二叉树
-树：
-树是一种非线性的数据结构，相比较其他线性数据结构（链表、数组），树的平均运行时间短（往往跟树有关的排序时间复杂度都不会太高）。
-二叉树：
-树形结构中一般二叉树用的比较多。最上层为根节点，没有儿子的节点称为叶子，二叉树中每个节点不会超过两个儿子。一棵树至少有一个节点，就是根节点。节点的定义一般就是两个指针，一个数据，指针指向子节点或者null。
-遍历二叉树：
-    遍历二叉树有三种方式
-    先序遍历：先遍历根节点，然后访问左节点，最后访问右节点。根节点->左节点->右节点
-    中序遍历：先遍历左节点，然后访问根节点，最后访问右节点。左节点->根节点->右节点
-    后序遍历：先遍历左节点，然后访问右节点，最后访问根节点，左节点->右节点->根节点
-    不管那种遍历，访问有孩子的节点，先处理孩子。所以处理二叉树一般都使用递归，没有孩子了就返回。
-```
+树：  
+树是一种非线性的数据结构，相比较其他线性数据结构（链表、数组），树的平均运行时间短（往往跟树有关的排序时间复杂度都不会太高）。  
+二叉树：  
+树形结构中一般二叉树用的比较多。最上层为根节点，没有儿子的节点称为叶子，二叉树中每个节点不会超过两个儿子。一棵树至少有一个节点，就是根节点。节点的定义一般就是两个指针，一个数据，指针指向子节点或者null。  
+遍历二叉树：  
+    遍历二叉树有三种方式  
+    先序遍历：先遍历根节点，然后访问左节点，最后访问右节点。根节点->左节点->右节点  
+    中序遍历：先遍历左节点，然后访问根节点，最后访问右节点。左节点->根节点->右节点  
+    后序遍历：先遍历左节点，然后访问右节点，最后访问根节点，左节点->右节点->根节点  
+    不管那种遍历，访问有孩子的节点，先处理孩子。所以处理二叉树一般都使用递归，没有孩子了就返回。  
+``` objectivec
 typedef struct Node {
     struct Node* left;
     struct Node* right;
@@ -500,12 +500,12 @@ graph TB;
          （内存和外存结合使用）     归并排序
               外存排序           基数排序
 ```
-![排序](sort.png)
-![排序时间](sorttime.png)
-1.直接插入排序
+![排序](./sort.png)
+![排序时间](./sorttime.png)
+1. 直接插入排序
 直接插入排序是一种最简单的排序方法，其基本操作是将一条记录插入到已排好的有序表中，从而得到一种新的记录量增1的有序表。
 将序列的第一位看作有序表，从第二位开始如果比前面的小，就交换，直至前面的有序，然后下一次循环，直至整个序列有序。
-```
+``` objectivec
 int a[8] = {8, 7, 2, 9, 12, 22, 1, 3};
 int b = 8;
 for (int i = 1; i < b; i++) {
@@ -518,10 +518,10 @@ for (int i = 1; i < b; i++) {
 ```
 当初始序列为正序时，只需要外层循环n-1次，无需移动元素。比较次数Cmin=n-1，移动次数Mmin=0，时间复杂度为O(n)。
 当初始序列为反序时，需要外循环n-1次，需要移动1到n-1次，每次都需要加上tmp的两次。此时时间复杂度为O(n²)。
-2.希尔排序
+2. 希尔排序
 相对直接排序有较大的改进，又叫做缩小增量排序，是直接插入排序算法的一种更高效的改进版本。希尔版本是非稳定排序算法。
 先取小于n的整数d1作为一个增量，以增量作为步长，跳跃式比较。如增量为5，则下标0、下标5、下标10的元素作为一组排序等，比较完成后再减小步长，直至步长为1，再进行最后一次插入排序完成排序。一般增量为前一个增量的一半。
-```
+``` objectivec
 int a[8] = {8, 7, 2, 9, 12, 22, 1, 3};
 int b = 8;
 int l = b / 2;
@@ -536,9 +536,9 @@ while (b >= 1) {
     l = l / 2;
 }
 ```
-3.简单选择排序
+3. 简单选择排序
 在排序的一组数中，选出最小或最大的一个与第一个位置的数交换；然后再剩下的数中找最小或最大的与第二个交换，以此类推，直到第n-1个元素和第n个元素比较为止。
-```
+``` objectivec
 int a[8] = {8, 7, 2, 9, 12, 22, 1, 3};
 int b = 8;
 
@@ -556,9 +556,77 @@ for (int i = 0; i < b - 1; i++) {
     }
 }
 ```
-4.堆排序
+4. 堆排序
 堆排序是一种树形选择排序，是对直接选择排序的有效改进，利用数组的特点快速的定位指定索引的元素。堆分为大根堆和小根堆，是完全二叉树。
+## 53.常见的Crach
+1. 找不到方法 unrecognized selector sent to instance  
+q:  
+找不到对象的方法，且没做处理，详见23
+a:  
+1.1 给NSObject添加分类，实现消息转发的三个方法
+1.2 避免使用performSelector系列方法
+1.3 调用delegate的方法前，判断respondsToSelector
+1.4 h文件中定义的方法在m文件中及时实现
+1.5 使用高版本api时要判断系统版本
+2. KVC造成的crash
+q:  
+在key为nil，或名字为key的属性不存在且未重写setUndefinedKey方法时会导致崩溃
+a:  
+可以重写setValue:ForUndefinedKey:方法，异常抛出
+3. EXC_BAD_ACCESS  
+该错误意味着访问一个不能执行该消息的内存，如已释放，或者野指针（指针悬挂）
+q:  
+3.1 执行未实现的的block
+3.2 对象没初始化，如alloc之后未init
+3.3 访问的对象已经被释放（野指针），如用__unsafe_unretained关键字修饰的对象容易出现该问题；该用strong或weak修饰的用assign修饰了等
+a:  
+3.1 对象及时初始化init
+3.2 没有完全把握不用使用__unsafe_unretained修饰属性，使用weak
+3.3 调用block时先对block进行判断
+3.4 出现问题时可以开启僵尸模式进行调试
+4. KVO引起的崩溃
+q:  
+4.1 观察者或被观察者是局部变量，过了作用域被释放掉会导致not handled错误崩溃
+4.2 观察者没有实现observeValueForKeyPath方法会导致not handled错误崩溃
+4.3 重复移除观察者会导致not registered错误崩溃
+a:  
+add和remove要成对出现，被观察者和观察者不要是局部变量
+5. 集合类相关崩溃
+q:  
+数组越界、添加nil(key or value)、多线程非原子性操作(未加锁)
+a:  
+判断是否越界后执行对应方法，做非空判断，多线程加锁  
+使用setValue:forKey:方法，value为nil时会删除键值对，不会崩溃  
+可以使用category或runtime重写替换对应的方法，添加安全判断
+6. 多线程崩溃
+q:  
+6.1 子线程更新ui
+6.2 多线程操作同一个对象或数据
+a:  
+6.1 子线程更新ui
+6.2 可以使用线程安全的NSCache
+7. watch dog（看门狗）超时造成的crash
+q: 主线程执行耗时操作，导致主线程被卡住超过一定时间就会崩溃，一般错误码是0x8badf00d，标识看门狗超时崩溃，通过是应用启动或终止花费太多时间、响应系统事件过久
+a: 应用启动的耗时操作交由子线程来操作，主线程只做更新ui和响应事件操作，网络请求或数据库读写放入子线程
+8. 后台返回NSNull对象
+NULL: 用于表示普通数据类型的空，如NSInteger
+nil: 用于表示OC对象，对nil发送消息不会crash
+Nil: 用于Class类型对象的赋值（类也是对象，是元类的实例）
+NSNull: null对象，OC对象的占位
+q: 多见于java后台服务器开发语言返回null，会解析会NSNull对象，对NSNull对象进行方法操作就会有异常崩溃
+a: 判断null对象，NUllSafe
+## 54.KVC及KVC的寻找Key的顺序
+KVC，key-value codeing,即调用setValueForKey：方法，其底层执行机制如下：
+1. 程序优先调用set(Key):属性值的方法，代码通过setter方法设置。如key为@"name",则先调用setName:方法
+2. 如果没找到就会检查是否重写+(BOOL)accessInstanceVariablesDirectly方法，默认返回YES，  
+2.1 如果重写返回NO，则会直接执行setValue:forUndefinedKey:方法  
+2.2 如果未重写或返回YES，则会寻找是否有下划线的成员变量，不管在h文件还是m文件中定义，只要能找到就会进行赋值。如_name
+3. 如果没有setter方法，也没有下划线的成员变量（未重写accessInstanceVariablesDirectly成NO），就会找_is(Key)的成员变量。如_isName，_isname不行
+4. 如果上面也没有就会找key或者is(Key)的成员变量，如name和isName
+5. 以上均未实现系统会执行setValue:forUndefinedKey:方法。
+
+
 ## 39.
-https://www.jianshu.com/p/d884f3040fda
+https://www.jianshu.com/p/d884f3040fda  
 https://www.jianshu.com/p/78e083e4c7cb
 
