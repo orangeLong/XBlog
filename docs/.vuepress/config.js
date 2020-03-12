@@ -22,7 +22,7 @@ module.exports = {
 			'/skill/iOS/': [
 				'effective/',
 				'block/',
-				'interview/'
+				// 'interview/'
 			],
 			'/skill/Vue/': [
 				'',
