@@ -28,6 +28,16 @@ weak表是一个hash表，key为所指对象的地址，value为weak指针的地
 ## 10.semaphore信号量
 当信号量数字小于等于0时，阻塞线程。dispatch_semaphore_creat(1)创建信号量（需要大于等于0，否则返回NULL），dispatch_semaphore_wait(sem, time)信号量减1，dispatch_semaphore_signal(sem)信号量加1。
 ## 11.首次启动应用执行顺序
+main函数之前  
+dyld2是in-process，即在程序进程内执行，也就意味着应用启动时dyld2才能开始执行任务。  
+iOS13全面使用dyld3，dyld3一部分为in-process，一部分是out-process，将分析Mach-o Headers、分析动态库依赖、查找Rebase&Bind之类的符号并写入缓存，应用启动时可以直接从缓存中读取数据，加快应用启动速度。out-process的动作在应用下载和版本更新的时候才会执行。
+![dyld2 VS dyld3](./dyld.png)
+1. 启动dynomic loader(dyld)到app进程--用于加载一个进程所需要的Image（Executable文件、Dylib动态库、Bundle无法被链接的动态库，只能通过dlopen()加载）Mach-O文件还包括Framework动态库与头文件及对应资源文件的集合
+2. 加载动态库（包括所依赖的所有动态库）--dyld读取mach-o文件中的header和load commands，接下来就知道这个可执行文件依赖的动态库。|加载动态库A，然后检查A的依赖，进行递归加载，直到加载所有动态库。通常一个app有100-400的动态库，大多是系统的动态库，会缓存到dyld shared cache，读取速率较高。
+3. Rebase和Bind--Rebase修正内部（指向当前mach-o文件）的指针指向，Bind修正外部指针指向。|因为ASLR，Address space layout randomization（地址空间布局随机化），应用启动时程序会被映射到逻辑的地址空间，这个逻辑的地址空间有个起始地址，而ASLR使这个地址随机。防止黑客通过起始地址+偏移量找到函数的地址。Rebase通过增加对应的偏移修正内部指针指向，Bind通过字符串匹配的方式查找符号表做修正，速度相对于Rebase较慢。 
+4. 初始化Object C Runtime--在执行main函数之前需要把类的信息注册到全局的Table中，category信息也会注册到对应的类中，生成唯一的selector。iOS开发基于Cocoa Touch，大多数类都是系统类，所以大多数Runtime初始化在Rebase和Bind中已经完成。
+5. 其他初始化代码（+load +initialize）--包括静态初始化对象  
+main函数之后  
 1. 执行main函数，argc为进入main函数时传参个数，默认为1；argv代表传入的参数，默认为程序名。
 2. 执行UIApplicationMain方法传入代理类创建Application对象，并创建Delegate对象。
 3. 创建并开启主循环，代理对象开始监听事件
