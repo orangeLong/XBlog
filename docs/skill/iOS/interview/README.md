@@ -75,9 +75,10 @@ block会生成一个结构体，该结构体会强引用内部包含的局部变
 ## 21.objc发送消息的调用顺序
 方法调用会被编译器转成objc_msgSend。根据对象的isa指针找到类对象，在类对象的methodLists方法列表中找对应的方法，如果没有就通过对象的superClass找到父对象，重复上述过程直至找到函数IMP执行。方法调用之后就会方法名作为key，函数实现作为value保存在objc_cache中，方便下次调用。类方法会通过类结构体的isa指针找到元类，在元类的methodLists中找对应的函数IMP。
 ## 22.类的关系
-子类实例isa指针指向类，类isa指针指向元类，元类的isa指针指向根元类，根元类isa指针指向自己。
-类的superClass指向父类，父类的superClass指向根类，根类的superClass指向nil。
-元类的superClass指向元父类，父元类的superClass指向根元类，根元类的superClass指向根类。
+子类实例isa指针指向类，类isa指针指向元类，元类的isa指针指向根元类，根元类isa指针指向自己。  
+类的superClass指向父类，父类的superClass指向根类，根类的superClass指向nil。  
+元类的superClass指向父元类，父元类的superClass指向根元类，根元类的superClass指向根类。  
+![class](./class.png)
 ## 23.什么时候会报unrecognized selector错误
 当调用方法不存在时报错崩溃，runtime给予了三次机会避免崩溃。
 1. 动态方法解析：+ (BOOL)resolveInstanceMethod:(SEL)sel 或者 + (BOOL)resolveClassMethod:(SEL)sel，允许通过class_addMethod动态添加函数实现。
@@ -166,8 +167,8 @@ typedef CF_OPTIONS(CFOptionFlags, CFRunLoopActivity) {
 5. kCFRunLoopCommonModes(NSRunLoopCommonModes)：伪模式，比较特殊
 通常用到的有1、2、5三种。
 有个比较特殊的概念“CommonModes”，一个Mode可以将自身标记为“Common”(通过将ModeName名添加至RunLoop中的“commonModes”)。每次RMunLoop的内容发生变化，RunLoop就会自动将_commonModeItems中的Source/Observer/Timer同步到具有"Common"标记的所有Mode里。
-主线程中预制的两个Mode：kCFRunLoopDefaultMode和UITrackingRunLoopMode都已经被标记为“Common”属性。
-在主线程创建一个NSTimer会默认添加至DefaultMode，Timer可以得到重复回调，但此时滑动ScrollView时，RunLoop会默认把Mode切换为Tracking，此时Timer就不会被执行。
+主线程中预制的两个Mode：kCFRunLoopDefaultMode和UITrackingRunLoopMode都已经被标记为“Common”属性。  
+在主线程创建一个NSTimer会默认添加至DefaultMode，Timer可以得到重复回调，但此时滑动ScrollView时，RunLoop会默认把Mode切换为Tracking，此时Timer就不会被执行。  
 一种办法是将这个Timer分别加入两个Mode:
 ``` objectivec
 [[NSRunLoop currentRunLoop] addTimer:timer forMode:NSDefaultRunLoopMode];
@@ -571,60 +572,60 @@ for (int i = 0; i < b - 1; i++) {
 ## 53.常见的Crach
 1. 找不到方法 unrecognized selector sent to instance  
 q:  
-找不到对象的方法，且没做处理，详见23
+找不到对象的方法，且没做处理，详见23  
 a:  
-1.1 给NSObject添加分类，实现消息转发的三个方法
-1.2 避免使用performSelector系列方法
-1.3 调用delegate的方法前，判断respondsToSelector
-1.4 h文件中定义的方法在m文件中及时实现
-1.5 使用高版本api时要判断系统版本
-2. KVC造成的crash
+1.1 给NSObject添加分类，实现消息转发的三个方法  
+1.2 避免使用performSelector系列方法  
+1.3 调用delegate的方法前，判断respondsToSelector  
+1.4 h文件中定义的方法在m文件中及时实现  
+1.5 使用高版本api时要判断系统版本  
+2. KVC造成的crash  
 q:  
-在key为nil，或名字为key的属性不存在且未重写setUndefinedKey方法时会导致崩溃
+在key为nil，或名字为key的属性不存在且未重写setUndefinedKey方法时会导致崩溃  
 a:  
 可以重写setValue:ForUndefinedKey:方法，异常抛出
-3. EXC_BAD_ACCESS  
-该错误意味着访问一个不能执行该消息的内存，如已释放，或者野指针（指针悬挂）
+3. EXC_BAD_ACCESS   
+该错误意味着访问一个不能执行该消息的内存，如已释放，或者野指针（指针悬挂）  
 q:  
-3.1 执行未实现的的block
-3.2 对象没初始化，如alloc之后未init
-3.3 访问的对象已经被释放（野指针），如用__unsafe_unretained关键字修饰的对象容易出现该问题；该用strong或weak修饰的用assign修饰了等
+3.1 执行未实现的的block  
+3.2 对象没初始化，如alloc之后未init  
+3.3 访问的对象已经被释放（野指针），如用__unsafe_unretained关键字修饰的对象容易出现该问题；该用strong或weak修饰的用assign修饰了等  
 a:  
-3.1 对象及时初始化init
-3.2 没有完全把握不用使用__unsafe_unretained修饰属性，使用weak
-3.3 调用block时先对block进行判断
-3.4 出现问题时可以开启僵尸模式进行调试
-4. KVO引起的崩溃
+3.1 对象及时初始化init  
+3.2 没有完全把握不用使用__unsafe_unretained修饰属性，使用weak  
+3.3 调用block时先对block进行判断  
+3.4 出现问题时可以开启僵尸模式进行调试  
+4. KVO引起的崩溃  
 q:  
-4.1 观察者或被观察者是局部变量，过了作用域被释放掉会导致not handled错误崩溃
-4.2 观察者没有实现observeValueForKeyPath方法会导致not handled错误崩溃
-4.3 重复移除观察者会导致not registered错误崩溃
+4.1 观察者或被观察者是局部变量，过了作用域被释放掉会导致not handled错误崩溃  
+4.2 观察者没有实现observeValueForKeyPath方法会导致not handled错误崩溃  
+4.3 重复移除观察者会导致not registered错误崩溃  
 a:  
 add和remove要成对出现，被观察者和观察者不要是局部变量
-5. 集合类相关崩溃
+5. 集合类相关崩溃  
 q:  
-数组越界、添加nil(key or value)、多线程非原子性操作(未加锁)
+数组越界、添加nil(key or value)、多线程非原子性操作(未加锁)   
 a:  
 判断是否越界后执行对应方法，做非空判断，多线程加锁  
 使用setValue:forKey:方法，value为nil时会删除键值对，不会崩溃  
 可以使用category或runtime重写替换对应的方法，添加安全判断
-6. 多线程崩溃
+6. 多线程崩溃  
 q:  
-6.1 子线程更新ui
-6.2 多线程操作同一个对象或数据
+6.1 子线程更新ui  
+6.2 多线程操作同一个对象或数据  
 a:  
-6.1 子线程更新ui
-6.2 可以使用线程安全的NSCache
-7. watch dog（看门狗）超时造成的crash
-q: 主线程执行耗时操作，导致主线程被卡住超过一定时间就会崩溃，一般错误码是0x8badf00d，标识看门狗超时崩溃，通过是应用启动或终止花费太多时间、响应系统事件过久
-a: 应用启动的耗时操作交由子线程来操作，主线程只做更新ui和响应事件操作，网络请求或数据库读写放入子线程
+6.1 子线程更新ui  
+6.2 可以使用线程安全的NSCache  
+7. watch dog（看门狗）超时造成的crash  
+q: 主线程执行耗时操作，导致主线程被卡住超过一定时间就会崩溃，一般错误码是0x8badf00d，标识看门狗超时崩溃，通常是应用启动或终止花费太多时间、响应系统事件过久  
+a: 应用启动的耗时操作交由子线程来操作，主线程只做更新ui和响应事件操作，网络请求或数据库读写放入子线程  
 8. 后台返回NSNull对象
-NULL: 用于表示普通数据类型的空，如NSInteger
-nil: 用于表示OC对象，对nil发送消息不会crash
-Nil: 用于Class类型对象的赋值（类也是对象，是元类的实例）
-NSNull: null对象，OC对象的占位
-q: 多见于java后台服务器开发语言返回null，会解析会NSNull对象，对NSNull对象进行方法操作就会有异常崩溃
-a: 判断null对象，NUllSafe
+NULL: 用于表示普通数据类型的空，如NSInteger  
+nil: 用于表示OC对象，对nil发送消息不会crash  
+Nil: 用于Class类型对象的赋值（类也是对象，是元类的实例）  
+NSNull: null对象，OC对象的占位  
+q: 多见于java后台服务器开发语言返回null，会解析会NSNull对象，对NSNull对象进行方法操作就会有异常崩溃  
+a: 判断null对象，NUllSafe  
 ## 54.KVC及KVC的寻找Key的顺序
 KVC，key-value codeing,即调用setValueForKey：方法，其底层执行机制如下：
 1. 程序优先调用set(Key):属性值的方法，代码通过setter方法设置。如key为@"name",则先调用setName:方法
